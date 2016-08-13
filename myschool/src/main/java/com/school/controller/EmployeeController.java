@@ -8,7 +8,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.PageContext;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +19,8 @@ import com.school.po.Employee;
 import com.school.po.EmployeeExample;
 import com.school.service.impl.DepartmentService;
 import com.school.service.impl.EmployeeServcie;
-import com.school.util.DateUtils;
 import com.school.util.GetUrl;
 import com.school.util.PageBean;
-import com.school.util.PageConstants;
 import com.school.util.PaginationContext;
 import com.school.vo.DepAndEmp;
 
@@ -40,18 +37,7 @@ public class EmployeeController {
 	@Resource
 	private DepartmentService departmentService;
 	
-	private int getPc(HttpServletRequest req){
-		int pc = 1;
-		String param = req.getParameter("pageNum");
-		if(param != null && !param.trim().isEmpty()){
-			try{
-				pc = Integer.valueOf(param);
-			}catch(RuntimeException e){
-				
-			}
-		}
-		return pc;
-	}
+	
 	
 //	查询所有员工
 	@RequestMapping("/findAllEmployee")
