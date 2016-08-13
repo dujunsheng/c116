@@ -1,36 +1,31 @@
 package com.school.mapper;
 
-import com.school.po.Resource;
-import com.school.po.ResourceExample;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import java.util.Map;
 
-public interface ResourceMapper {
-    int countByExample(ResourceExample example);
+import com.school.po.Resource;
 
-    int deleteByExample(ResourceExample example);
-
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(Resource record);
-
-    int insertSelective(Resource record);
-
-    List<Resource> selectByExampleWithBLOBs(ResourceExample example);
-
-    List<Resource> selectByExample(ResourceExample example);
-
-    Resource selectByPrimaryKey(Integer id);
-
-    int updateByExampleSelective(@Param("record") Resource record, @Param("example") ResourceExample example);
-
-    int updateByExampleWithBLOBs(@Param("record") Resource record, @Param("example") ResourceExample example);
-
-    int updateByExample(@Param("record") Resource record, @Param("example") ResourceExample example);
-
-    int updateByPrimaryKeySelective(Resource record);
-
-    int updateByPrimaryKeyWithBLOBs(Resource record);
-
-    int updateByPrimaryKey(Resource record);
+public interface ResourceMapper/* extends BaseDao<Resource>*/{
+    int insertSelective(Resource resource);
+    /*
+     * 通过主键删除
+     */
+    int deleteByPrimaryKey(int id);
+    /*
+     * 通过主键查找
+     */
+    Resource selectByPrimaryKey(int id);
+    
+    /*
+     * 条件查找
+     */
+    List<Resource> selectByParameters(Map<String,Object> params);
+    
+    /*
+     * 获取两天之内资源
+     */
+    List<Resource> getLastestResource(Map<String,Object> params);
+    
+//    List<Resource> selectAll();
+	
 }
