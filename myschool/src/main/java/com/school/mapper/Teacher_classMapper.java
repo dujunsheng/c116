@@ -34,4 +34,6 @@ public interface Teacher_classMapper {
     int scoreIsAffirm(Map<String, Object> paraMap) ;
     //提交该班级该科目成绩
     int affirmScore(Map<String, Object> paraMap) ;
+    
+
 }

@@ -37,7 +37,16 @@ public interface StudentMapper {
     //通过班级查找学生
     List<Student> selectByClass(int classId) ;
     
+//    查询该班级有多少人
+    int countStuByCla(int classId);
+    
     int countByExample();
 
-    List<Student> selectByPage(Map<String, Integer> map);
+   List<Student> selectByPage(Map<String, Integer> map);
+   
+//   查询所有学生
+   List<Student> findAllStu();
+   
+//   统计学生人数
+   int countAllStu();
 }

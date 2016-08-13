@@ -11,7 +11,7 @@ public class Score {
 
     private Integer evaId;
 
-    private Integer score;
+    private double score;
 
     public Integer getId() {
         return id;
@@ -53,11 +53,11 @@ public class Score {
         this.evaId = evaId;
     }
 
-    public Integer getScore() {
+    public double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(double score) {
         this.score = score;
     }
 }

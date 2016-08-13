@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.school.mapper.EmployeeMapper;
+import com.school.po.Clazz;
 import com.school.po.Employee;
 import com.school.po.Teacher;
 import com.school.po.User;
 import com.school.po.UserAndRole;
+import com.school.service.impl.ClazzServiceImpl;
 import com.school.service.impl.EmployeeServcie;
 import com.school.service.impl.TeacherService;
 import com.school.service.impl.UserService;
@@ -34,6 +36,8 @@ public class LoginController {
 	private TeacherService teacherService;
 	@Resource
 	private EmployeeServcie employeeService;
+	@Resource
+	private ClazzServiceImpl clazzServiceImpl;
 	
 
 	@RequestMapping("/login")
@@ -54,6 +58,24 @@ public class LoginController {
 //					该用户权限不为空，获取该用户所有权限
 					
 					req.getSession().setAttribute("role", role);
+					if( role.getRole_id() == 1){
+						int classId = 1;
+						req.getSession().setAttribute("classId", classId);
+					}else if(role.getRole_id() == 2){
+						Teacher teacher = teacherService.selectByPrimaryKey(role.getU_id());
+						req.getSession().setAttribute("subId", teacher.getSubId());
+					}else if(role.getRole_id() == 3){
+						Teacher teacher = teacherService.selectByPrimaryKey(role.getU_id());
+						int id = clazzServiceImpl.selecthHeadTeaClazz(role.getU_id());
+						Clazz clazz = clazzServiceImpl.findClass(id);
+						clazz.setClassId(id);
+						req.getSession().setAttribute("subId", teacher.getSubId());
+						req.getSession().setAttribute("classId", id);
+					}
+					else {
+						Employee employee = employeeService.selectByPrimaryKey(role.getU_id());
+						modelAndView.addObject("employee", employee);
+					}
 					modelAndView.addObject("role", role);
 					modelAndView.setViewName("/user/jsps/main");
 					return modelAndView;
@@ -80,13 +102,23 @@ public class LoginController {
 		UserAndRole role = (UserAndRole) req.getSession().getAttribute("role");
 		if( role.getRole_id() == 1){
 			String msg = "admin";
+			int classId = 1;
 			modelAndView.addObject("msg", msg);
 			modelAndView.setViewName("/user/msg");
 			return modelAndView;
 		}else if(role.getRole_id() == 2){
 			Teacher teacher = teacherService.selectByPrimaryKey(role.getU_id());
+			req.getSession().setAttribute("subId", teacher.getSubId());
 			modelAndView.addObject("teacher", teacher);
-		}else {
+		}else if(role.getRole_id() == 3){
+			Teacher teacher = teacherService.selectByPrimaryKey(role.getU_id());
+			int id = clazzServiceImpl.selecthHeadTeaClazz(role.getU_id());
+			Clazz clazz = clazzServiceImpl.findClass(id);
+			clazz.setClassId(id);
+			modelAndView.addObject("teacher", teacher);
+			modelAndView.addObject("class", clazz);
+		}
+		else {
 			Employee employee = employeeService.selectByPrimaryKey(role.getU_id());
 			modelAndView.addObject("employee", employee);
 		}

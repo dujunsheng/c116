@@ -29,7 +29,7 @@
   
   <!-- 查看班主任所担任的班级ID -->
   <select id="selecthHeadTeaClazz" parameterType="java.lang.String" resultType="int">
-  	SELECT class_id FROM class c, teacher t WHERE c.momitor_id=t.tea_id AND t.tea_id=#{teaId} 
+  	SELECT class_id FROM class c, teacher t WHERE c.head_tea_id=t.tea_id AND t.tea_id=#{teaId} 
   </select>
   
   <select id="selectByTeacher" parameterType="java.lang.Integer" resultMap="BaseResultMap" >

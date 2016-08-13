@@ -1,279 +1,140 @@
 package com.school.util;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import com.school.po.Student;
+
 
 public class ExcelUtil {
+	/** 
+     * 读取报表 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+     */  
+    public <T> List<T> readReport(InputStream inp,  Class<T> clazz, Map<Integer,String> map) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException  {  
+  
+        List<T> list = new ArrayList<T>();  
+  
+        try {  
+  
+            Workbook wb = WorkbookFactory.create(inp);  
+  
+            Sheet sheet = wb.getSheetAt(0);// 取得第一个sheets  
+            
+            Field field = null ;
+            
+            //从第一行开始读取数据  
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {  
+  
+                Row row = sheet.getRow(i); // 获取行(row)对象  
+                T t = clazz.newInstance() ;
+                T t1 = clazz.newInstance() ;
+                
+                if (row == null) {  
+                    // row为空的话,不处理  
+                    continue;  
+                }  
 
-	private static final int DEFAULT_ROW_BEGIN = 1;
-
-	/**
-	 * 写入表头信息
-	 */
-	private void writeHeader(HSSFWorkbook hssfWorkbook, HSSFSheet hssfSheet,
-			List<String> headList) {
-		// 处理excel表头
-		HSSFRow r = hssfSheet.createRow(0);
-		HSSFCell cell = null;
-
-		for (int i = 0; i < headList.size(); i++) {
-			cell = r.createCell(i);
-
-			HSSFCellStyle cellStyle2 = hssfWorkbook.createCellStyle();
-			HSSFDataFormat format = hssfWorkbook.createDataFormat();
-			cellStyle2.setDataFormat(format.getFormat("@"));
-			cell.setCellStyle(cellStyle2);
-
-			cell.setCellType(HSSFCell.CELL_TYPE_STRING);
-			cell.setCellValue(headList.get(i));
-			// setCellValue(cell, );
-		}
-	}
-
-	/**
-	 * 写入内容部分
-	 */
-	private <T> void writeContent(HSSFWorkbook hssfWorkbook,
-			HSSFSheet hssfSheet, int startRow, Map<String, String> headListMap,
-			List<String> headList, List<T> dataList, Class<?> clazz) {
-		HSSFRow row = null;
-		HSSFCell cell = null;
-		Field filed = null;
-		String value = null;
-		startRow = startRow >= 1 ? startRow : DEFAULT_ROW_BEGIN;
-
-		try {
-			for (int i = startRow; i <= dataList.size(); i++) {
-				row = hssfSheet.createRow(i);
-				for (int j = 0; j < headList.size(); j++) {
-					filed = clazz.getDeclaredField(headListMap.get(headList
-							.get(j)));
-					filed.setAccessible(true);
-					cell = row.createCell(j);
-					value = (String) filed.get(dataList.get(i - 1)); // 数据集合下标是从0开始的
-					setCellValue(cell, value);
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void setCellValue(HSSFCell cell, Object value) {
-		if (value != null) {
-			if (value instanceof Boolean) {
-				cell.setCellValue((Boolean) value);
-			} else if (value instanceof Integer) {
-				cell.setCellValue((Integer) value);
-			} else if (value instanceof Long) {
-				cell.setCellValue((Long) value);
-			} else if (value instanceof Float) {
-				cell.setCellValue((Integer) value);
-			} else if (value instanceof Double) {
-				cell.setCellValue((Double) value);
-			} else if (value instanceof Date) {
-				cell.setCellValue((Date) value);
-			} else if (value instanceof Double) {
-				cell.setCellValue((Double) value);
-			} else {
-				cell.setCellValue(value.toString());
-			}
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private <T> void setField(Field field, T t, HSSFCell cell) throws Exception {
-		DecimalFormat intFormat = new DecimalFormat("#");
-		if (field.getType() == Boolean.class) {
-			field.set(t, cell.getBooleanCellValue());
-		} else if (field.getType() == Integer.class
-				|| field.getType() == int.class) {
-			field.set(t, Integer.parseInt(intFormat.format(cell
-					.getNumericCellValue())));
-		} else if (field.getType() == Long.class
-				|| field.getType() == long.class) {
-			field.set(t, Integer.parseInt(intFormat.format(cell
-					.getNumericCellValue())));
-		} else if (field.getType() == Float.class
-				|| field.getType() == float.class) {
-			field.set(t, cell.getNumericCellValue());
-		} else if (field.getType() == Double.class
-				|| field.getType() == double.class) {
-
-			double cellValue = cell.getNumericCellValue();
-			field.set(t, new DecimalFormat("#").format(cellValue));
-		} else if (field.getType() == Date.class) {
-			field.set(t, cell.getDateCellValue());
-		} else {
-			field.set(t, cell.getStringCellValue());
-		}
-		// 取值后会带一个E的问题
-
-	}
-
-	/**
-	 * 将数据写入Excel
-	 */
-	private void writeFile(HSSFWorkbook hssfWorkbook, String filePath)
-			throws Exception {
-		FileOutputStream fileOut = null;
-		try {
-			fileOut = new FileOutputStream(filePath);
-			hssfWorkbook.write(fileOut);
-		} finally {
-			if (fileOut != null) {
-				fileOut.close();
-			}
-		}
-	}
-
-	/**
-	 * 从Excel中读取数据
-	 */
-	private <T> List<T> readContent(HSSFSheet sheet,
-			Map<String, String> headListMap, List<String> headList,
-			Class<T> clazz) throws Exception {
-		List<T> list = new ArrayList<T>();
-		HSSFRow row = null;
-		Field field = null;
-
-		int rows = sheet.getPhysicalNumberOfRows();
-		for (int i = 1; i < rows; i++) {
-			row = sheet.getRow(i);
-			if (row == null) {
-				continue;
-			}
-			T t = clazz.newInstance();
-
-			for (int j = 0; j < headList.size(); j++) {
-				field = clazz
-						.getDeclaredField(headListMap.get(headList.get(j)));
-				field.setAccessible(true);
-
-				HSSFCell cell = row.getCell(j);
-				if (null != cell) {
-					switch (cell.getCellType()) {
-
-					case HSSFCell.CELL_TYPE_STRING: // 字符串
-						field.set(t, cell.getStringCellValue().trim()); //去除首尾空格
-						break;
-					case HSSFCell.CELL_TYPE_NUMERIC: // 数字
-						// if(HSSFDateUtil.isCellDateFormatted(cell)) {
-						// Date date = cell.getDateCellValue();
-						// field.set(t, date);
-						// break;
-						// }
-						String doubleVal = new DecimalFormat().format(cell
-								.getNumericCellValue());
-						if (doubleVal.contains(".5")) { //小数点后一位不为0则保留
-							field.set(t, doubleVal);
-						} else {
-							field.set(t, new DecimalFormat("#").format(cell
-									.getNumericCellValue()));
-						}
-
-						break;
-					case HSSFCell.CELL_TYPE_BOOLEAN: // Boolean
-						field.set(t, cell.getBooleanCellValue());
-						break;
-					case HSSFCell.CELL_TYPE_FORMULA: // 公式
-						field.set(t, cell.getCellFormula());
-						break;
-					case HSSFCell.CELL_TYPE_BLANK: // 空值
-						break;
-					case HSSFCell.CELL_TYPE_ERROR: // 故障
-						break;
-					default:
-						System.out.print("Excel 读取遇到未知类型 数据 ");
-						break;
-					}
-				} else {
-				}
-
-			}
-			list.add(t);
-		}
-		return list;
-	}
-
-	/**
-	 * 读取文件
-	 */
-	private HSSFWorkbook readFile(String filePath) throws Exception {
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(filePath);
-			return new HSSFWorkbook(fis);
-		} finally {
-			fis.close();
-		}
-	}
-
-	/**
-	 * 导出Excel 1、创建excel 文本文件及sheet对象 2、将数据按照属性值写入excel文本对象 3、输出excel文本对象
-	 * 
-	 * @param sheetName
-	 *            sheet名字
-	 * @param filePath
-	 *            文本地址
-	 * @param headListMap
-	 *            key为excel列头名、value为对象对应的属性名
-	 * @param headList
-	 *            excel列头名集合，按照excel顺序
-	 * @param dataList
-	 *            数据集合
-	 * @param rowStart
-	 *            开始写入行
-	 * @param clazz
-	 *            处理对象Class对象
-	 */
-	public <T> void exportExcel(String sheetName, String filePath,
-			Map<String, String> headListMap, List<String> headList,
-			List<T> dataList, int rowStart, Class<T> clazz) throws Exception {
-
-		HSSFWorkbook hssfWorkbook = new HSSFWorkbook();
-		HSSFSheet hssfSheet = hssfWorkbook.createSheet(sheetName);
-		writeHeader(hssfWorkbook, hssfSheet, headList);
-		writeContent(hssfWorkbook, hssfSheet, rowStart, headListMap, headList,
-				dataList, clazz);
-		writeFile(hssfWorkbook, filePath);
-	}
-
-	/**
-	 * 导入Excel 1、读取excel文本 2、逐行读取excel文本，并读取结果返回
-	 * 
-	 * @param sheetName
-	 *            sheet名字
-	 * @param filePath
-	 *            文本地址
-	 * @param headListMap
-	 *            key为excel列头名、value为对象对应的属性名
-	 * @param headList
-	 *            excel列头名集合，按照excel顺序
-	 * @param clazz
-	 *            处理对象Class对象
-	 */
-	public <T> List<T> importExcel(String sheetName, String filePath,
-			Map<String, String> headListMap, List<String> headList,
-			Class<T> clazz) throws Exception {
-
-		HSSFSheet sheet = readFile(filePath).getSheet(sheetName);
-		List<T> result = readContent(sheet, headListMap, headList, clazz);
-		return result;
-	}
-
+                for (int j = 0; j < row.getLastCellNum(); j++) {  
+                	field = clazz.getDeclaredField(map.get(j+1)) ;
+                	field.setAccessible(true);
+                	// 获得单元格(cell)对象 
+                    Cell cell = row.getCell(j);  
+                    // 将单元格的数据添加至一个对象对应的属性中
+                    t = addingT(field, t1, cell);  
+                }  
+                // 将添加数据后的对象填充至list中  
+                list.add(t);  
+            }  
+  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }   
+         finally {  
+            if (inp != null) {  
+                try {  
+                    inp.close();  
+                } catch (IOException e) {  
+                    e.printStackTrace();  
+                }  
+            } 
+        }  
+        return list;  
+  
+    }   
+    
+    private <T> T addingT(Field field, T t, Cell cell) throws IllegalArgumentException, IllegalAccessException {  
+    	
+        switch (cell.getCellType()) {  
+        
+        case Cell.CELL_TYPE_STRING:  
+            // 读取String  
+        	field.set(t, cell.getStringCellValue());  
+            break;  
+        
+            
+        case Cell.CELL_TYPE_BOOLEAN:  
+            // 得到Boolean对象的方法  
+            field.set(t, cell.getBooleanCellValue());
+            break;  
+  
+        case Cell.CELL_TYPE_NUMERIC:  
+  
+            // 先看是否是日期格式  
+            if (DateUtil.isCellDateFormatted(cell)) {  
+                // 读取日期格式  
+            	
+            	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        		
+            	field.set(t, df.format(cell.getDateCellValue()));  
+  
+            } else {    
+                // 读取数字  
+            	
+                Integer longVal = (int) Math.round(cell.getNumericCellValue()); 
+                double doubleVal = Math.round(cell.getNumericCellValue()); 
+                
+				if(Double.parseDouble(longVal + ".0") == doubleVal){  
+                	String type = field.getType().toString() ;
+                	if (type.equals("class java.lang.String")){
+                		field.set(t, longVal+"") ;
+                	}else
+                		field.set(t, longVal) ;  }
+                else  
+                	field.set(t, doubleVal);            	
+            }  
+            break;  
+  
+        case Cell.CELL_TYPE_FORMULA:  
+            // 读取公式  
+        	field.set(t,cell.getCellFormula());  
+            break;  
+        
+		case HSSFCell.CELL_TYPE_BLANK: // 空值
+			break;
+			
+		case HSSFCell.CELL_TYPE_ERROR: // 故障
+			break;  
+        }
+        
+        return t;  
+    }
 }

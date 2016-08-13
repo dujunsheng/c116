@@ -30,7 +30,7 @@
 		<if test="clazzId!=null">
 		AND s.class_id=#{clazzId}
 		</if>
-		<if test="subId!=0">
+		<if test="subId!=0 and subId != null">
 		AND sc.sub_id=#{subId}
 		</if>
 		<if test="stuId!=null">

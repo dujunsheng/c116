@@ -8,12 +8,14 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.PageHelper;
 import com.school.mapper.ScoreMapper;
 import com.school.mapper.StudentMapper;
 import com.school.po.Score;
 import com.school.po.Student;
 import com.school.service.Inter.StudentServiceInter;
 import com.school.service.base.impl.BaseServiceImpl;
+import com.school.util.PaginationContext;
 import com.school.vo.ScoreVo;
 
 @Service("StudentService")
@@ -36,30 +38,29 @@ public class StudentServiceImpl extends BaseServiceImpl<Student> implements Stud
 	}
 	
 	//通过班级ID查找学生
-	@Override
-	public Map<String, Object> selectByClass(int classId, int pageNow) {
-		Map<String, Object> map = new HashMap<String, Object>() ;
-		
-		//rowCount表示存在的总行数
-		//pageCount表示总页数
-		//pageSize表示每页的数量
-		int pageSize = 3 ;
-		int rowCount = stuMapper.countByExample() ;
-		int pageCount = (rowCount-1)/pageSize+1 ;
-		
-		Map<String, Integer> paramMap = new HashMap<String, Integer>() ;
-		paramMap.put("beginRow", (pageNow-1)*pageSize) ;
-		paramMap.put("pageSize", pageSize) ;
-		paramMap.put("classId", classId) ;
-		
-		List<Student> list = stuMapper.selectByPage(paramMap);
-		
-		map.put("pageCount", pageCount) ;	
-		map.put("list", list) ;
-		map.put("pageNow", pageNow) ;
-		return map ;
+	public List<Student> selectByClass(int classId) {
+		PageHelper.startPage(PaginationContext.getPageNum(), 
+				 PaginationContext.getPageSize());
+		return stuMapper.selectByClass(classId);
+	}
+	
+//	通过班级id计算人数
+	public int countStuByCla(int classId){
+		return stuMapper.countStuByCla(classId);
 	}
 
+//	获取整个学校的学生
+	public List<Student>findAllStu(){
+		PageHelper.startPage(PaginationContext.getPageNum(), 
+				 PaginationContext.getPageSize());
+		return stuMapper.findAllStu();
+	}
+	
+//	获取整个学校的人数
+	public int countAllStu(){
+		return stuMapper.countAllStu();
+	}
+	
 	@Override
 	public Student selectByPrimaryKey(String stuId) {
 		Student student = stuMapper.selectByPrimaryKey(stuId) ;
@@ -93,5 +94,11 @@ public class StudentServiceImpl extends BaseServiceImpl<Student> implements Stud
 		return scoreMapper.updateByPrimaryKey(score) ;
 	}
 
+	@Override
+	public Map<String, Object> selectByClass(int classId, int pageNow) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	
 }

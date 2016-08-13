@@ -138,5 +138,8 @@ public class ClazzServiceImpl implements ClassServiceInter {
 		return 0;
 	}
 	
-
+//	根据班级id查询板级
+	public Clazz findClass(int id){
+		return classmapper.selectByPrimaryKey(id);
+	}
 }
