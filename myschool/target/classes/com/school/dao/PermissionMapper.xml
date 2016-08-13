@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.school.mapper.PermissionMapper">
+	<!-- 查询所有父类功能 -->
+	<select id="findPer" resultMap="findPerAndSon">
+		select * from permissions where p_id = 0
+	</select>
+	
+	<resultMap type="Permission" id="findPerAndSon">
+		<id property="id" column="id"/>
+		<result property="permission" column="permission"/>
+		<result property="p_id" column="p_id"/>
+		<result property="c_id" column="c_id"/>
+		<result property="url" column="url"/>
+		<collection property="son" ofType="Permission" select="findSon" column="c_id"></collection>
+	</resultMap>
+	
+	<!-- 查询父类功能并且查询父类下的子类功能 -->
+	<select id="findSon" parameterType="int" resultType="Permission">
+		select * from permissions where p_id=#{c_id}
+	</select>
+	<!-- 根据id查询父类功能 并且查询他的子类功能-->
+	<select id="findPerById" parameterType="int" resultMap="findPerAndSon">
+		select * from permissions where p_id = 0 and id = #{id}
+	</select>
+	
+	<!-- 根据角色id查询所有的父类的功能 -->
+	<select id="findPreByRol_id" parameterType="int" resultMap="findPreByRol_id">
+		select * from roles_permission where role_id = #{id}
+	</select>
+	
+	<!-- 根据父类id查询父类功能名字-->
+	<select id="findPreName" parameterType="int" resultMap="findPerAndSon">
+		select * from permissions  where c_id = #{id}
+	</select>
+	
+	<resultMap type="RoleAndPer" id="findPreByRol_id">
+		<id property="role_id" column="role_id"/>
+		<collection property="pre" ofType="Permission" select="findPreName" column="permission_id"></collection>
+	</resultMap>
+</mapper>

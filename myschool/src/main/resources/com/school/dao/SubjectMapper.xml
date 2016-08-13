@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.school.mapper.SubjectMapper">
+
+	<resultMap type="Subject" id="BaseResultMap">
+		<id property="subId" column="sub_id"/>
+		<result property="subName" column="sub_name"/>
+	</resultMap>
+
+	<select id="selectByPrimaryKey" parameterType="int" resultMap="BaseResultMap">
+		select * from subject where sub_id = #{sub_id}
+	</select>
+	
+	<select id="findAll" resultMap="BaseResultMap">
+		select * from subject
+	</select>
+	
+	<select id="selectBySubName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select * from subject where sub_name = #{sub_name }
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="int">
+		delete from subject where sub_id = #{sub_id}
+	</delete>
+	
+	<insert id="insertSubject" parameterType="java.lang.String">
+		insert into subject (sub_name) values (#{sub_name})
+	</insert>
+	
+	<!-- 查询某一科目下的所有老师 -->
+	<select id="selectSubAndTea" parameterType="int" resultMap="selectSubAndTea">
+		select * from subject where sub_id= #{sub_id}
+	</select>
+	
+	<resultMap type="TeaAndSub" id="selectSubAndTea">
+		<id property="subId" column="sub_id"/>
+		<result property="subject.subName" column="sub_name"/>
+		<collection property="list" ofType="Teacher" select="com.school.mapper.TeacherMapper.selectBySubId" column="sub_id"></collection>
+	</resultMap>
+</mapper>
